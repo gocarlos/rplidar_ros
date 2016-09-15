@@ -380,7 +380,7 @@ namespace rplidar_ros {
     drv->stopMotor();
     if (!pwm_filename.empty())
     {
-      ofstream pwm_file(pwm_filename);
+      std::ofstream pwm_file(pwm_filename.c_str());
       if (pwm_file.is_open())
       {
         pwm_file << "0";  // Set to lowest rate.
@@ -403,7 +403,7 @@ namespace rplidar_ros {
     drv->startScan();
     if (!pwm_filename.empty())
     {
-      ofstream pwm_file(pwm_filename);
+      std::ofstream pwm_file(pwm_filename.c_str());
       if (pwm_file.is_open())
       {
         pwm_file << "255";  // Set to highest rate.
