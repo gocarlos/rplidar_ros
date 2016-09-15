@@ -59,6 +59,7 @@ namespace rplidar_ros {
     bool inverted;
     std::string frame_id;
     std::string serial_port;
+    std::string pwm_filename;
     int serial_baudrate;
     int res;
 

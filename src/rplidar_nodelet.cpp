@@ -5,10 +5,10 @@
 ** Includes
 *****************************************************************************/
 
+#include <fstream>
 #include "pluginlib/class_list_macros.h"
 
 #include "rplidar_ros/rplidar_nodelet.hpp"
-
 
 #ifndef _countof
 #define _countof(_Array) (int)(sizeof(_Array) / sizeof(_Array[0]))
@@ -17,7 +17,7 @@
 #define DEG2RAD(x) ((x)*M_PI/180.)
 
 /// @todo It may be better to call start_motor/stop_motor whenever interacting with it.
-// and start_motor fro starting scan 
+// and start_motor fro starting scan
 namespace rplidar_ros {
 
   RPlidarNodelet::~RPlidarNodelet() {
@@ -41,15 +41,15 @@ namespace rplidar_ros {
 
     ros::NodeHandle &nh = this->getNodeHandle();
     ros::NodeHandle &nh_private = this->getPrivateNodeHandle();
-    std::string frame, vehicle;
+    std::string frame;
     nh_private.param<std::string>("serial_port", serial_port, "/dev/ttyUSB0");
     nh_private.param<int>("serial_baudrate", serial_baudrate, 115200);
-    nh_private.param<std::string>("frame_id", frame, "rplidar_link");
-    nh_private.param<std::string>("vehicle", vehicle, "alpha");
+    nh_private.param<std::string>("frame_id", frame, "laser_frame");
     nh_private.param<bool>("inverted", inverted, "false");
     nh_private.param<bool>("angle_compensate", angle_compensate, "true");
+    nh_private.param<std::string>("pwm_filename", pwm_filename, "");
 
-    frame_id = vehicle + "/" + frame;
+    frame_id = nh.getNamespace() + "/" + frame;
 
     res = RPlidarNodelet::init_driver(serial_port, serial_baudrate);
     if (res < 0)
@@ -378,6 +378,18 @@ namespace rplidar_ros {
     NODELET_DEBUG("RPLidar : stopping the motor");
     drv->stop();
     drv->stopMotor();
+    if (!pwm_filename.empty())
+    {
+      ofstream pwm_file(pwm_filename);
+      if (pwm_file.is_open())
+      {
+        pwm_file << "0";  // Set to lowest rate.
+      } else {
+        NODELET_ERROR("Start RPLidar : Could not open PWM file.");
+        return false;
+      }
+      pwm_file.close();
+    }
     return true;
   }
 
@@ -389,6 +401,18 @@ namespace rplidar_ros {
     NODELET_DEBUG("RPLidar : starting the motor");
     drv->startMotor();
     drv->startScan();
+    if (!pwm_filename.empty())
+    {
+      ofstream pwm_file(pwm_filename);
+      if (pwm_file.is_open())
+      {
+        pwm_file << "255";  // Set to highest rate.
+      } else {
+        NODELET_ERROR("Start RPLidar : Could not open PWM file.");
+        return false;
+      }
+      pwm_file.close();
+    }
     return true;
   }
 
