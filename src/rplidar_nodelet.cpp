@@ -396,6 +396,7 @@ namespace rplidar_ros {
   bool RPlidarNodelet::start_motor(std_srvs::Empty::Request &req,
                                   std_srvs::Empty::Response &res)
   {
+    std::cerr << "Test\n";
     if(!drv)
           return false;
     NODELET_DEBUG("RPLidar : starting the motor");
@@ -419,6 +420,7 @@ namespace rplidar_ros {
   bool RPlidarNodelet::reset_device(std_srvs::Trigger::Request &req,
                     std_srvs::Trigger::Response &res)
   {
+    std::cerr << "Test\n";
     if(!drv)
     {
       return false;
