@@ -22,6 +22,8 @@ namespace rplidar_ros {
 
   RPlidarNodelet::~RPlidarNodelet() {
       work = false;
+      drv->stop();
+      drv->stopMotor();
       drv->disconnect();
       RPlidarDriver::DisposeDriver(&drv);
       scan_pub.shutdown();
@@ -52,6 +54,9 @@ namespace rplidar_ros {
     frame_id = nh.getNamespace() + "/" + frame;
 
     res = RPlidarNodelet::init_driver(serial_port, serial_baudrate);
+    drv->startMotor();
+    drv->startScan();
+
     if (res < 0)
     {
       NODELET_ERROR_STREAM("Failed to initialise driver. Exiting. (Halt!)");
@@ -396,7 +401,6 @@ namespace rplidar_ros {
   bool RPlidarNodelet::start_motor(std_srvs::Empty::Request &req,
                                   std_srvs::Empty::Response &res)
   {
-    std::cerr << "Test\n";
     if(!drv)
           return false;
     NODELET_DEBUG("RPLidar : starting the motor");
@@ -420,7 +424,6 @@ namespace rplidar_ros {
   bool RPlidarNodelet::reset_device(std_srvs::Trigger::Request &req,
                     std_srvs::Trigger::Response &res)
   {
-    std::cerr << "Test\n";
     if(!drv)
     {
       return false;
